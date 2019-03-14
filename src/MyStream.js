@@ -6,7 +6,7 @@ function Stream(props) {
       <div className="row">
         <div className="stream-image col-sm-3">picture goes here</div>
         <div className="stream-info col-sm-7">
-          <h5 className="name">Display name</h5>
+          <h5 className="name">Test</h5>
           <p className="game">{props.stream.game}</p>
           <p className="viewers">Number of viewers</p>
           <p className="description">Description</p>

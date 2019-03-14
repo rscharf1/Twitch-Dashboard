@@ -6,14 +6,14 @@ import Header from "./MyHeader";
 import SearchBar from "./MySearchBar";
 import Stream from "./MyStream";
 var APIid = "2x21yf8b7p6a6z6agpbc4cdsf0cy8d";
-var array1 = [];
+var myStreams = [];
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading: false,
-      items: []
+      items: [],
+      loading: false
     };
   }
 
@@ -28,16 +28,14 @@ class App extends Component {
         .then(res => res.json())
         .then(json => {
           this.setState({
-            loading: false,
-            items: json
+            items: json.streams,
+            loading: false
           });
-          console.log("response: ", json);
+          console.log("json response: ", json);
+          console.log("this.state response: ", this.state);
           console.log("Index zero game: ", json.streams[0].game);
-          console.log("Items: ", this.state.items.streams[0].game);
-          console.log(this.state.items.streams);
-          array1 = this.state.items.streams;
-          console.log("array1 ", array1);
-          console.log("array1 ", array1[0].game);
+          console.log("Index zero game: ", this.state.items[0].game);
+          console.log(this.state.items[2]);
         });
     };
     test_access_token();
@@ -52,18 +50,42 @@ class App extends Component {
         <div className="box">
           <Header />
           <SearchBar />
-          <Stream
-            stream={{
-              image: "test",
-              name: "test",
-              game: "Fort",
-              viewers: "5",
-              description: "test"
-            }}
-          />
-          <Button bsstyle="success">Test Button</Button>
+          <div>
+            {this.state.items.map(item => (
+              <div className="stream container">
+                <div className="row">
+                  <div className="stream-image col-sm-4">
+                    <img src={item.channel.logo} alt="" />
+                  </div>
+                  <div className="stream-info col-sm-7">
+                    <h5 className="name">{item.channel.display_name}</h5>
+                    <p className="game">{item.game}</p>
+                    <p className="viewers">Viewers: {item.viewers}</p>
+                    <p className="description">{item.channel.status}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       );
+      // return (
+      //   <div className="box">
+      //     <Header />
+      //     <SearchBar />
+      //     {myStreams}
+      //     <Stream
+      //       stream={{
+      //         image: "test",
+      //         name: "test",
+      //         game: "Fort",
+      //         viewers: "5",
+      //         description: "test"
+      //       }}
+      //     />
+      //     <Button bsstyle="success">Test Button</Button>
+      //   </div>
+      // );
     }
   }
 }

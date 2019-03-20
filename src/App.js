@@ -152,7 +152,7 @@ class App extends Component {
                   <div className="stream-info col-sm-7">
                     <h5 className="name">{item.user_name}</h5>
                     <p className="game">
-                      Playing
+                      {/* Playing {item.} */}
                       {/* Not working  */}
                     </p>
                     <p className="viewers">Viewers: {item.viewer_count}</p>

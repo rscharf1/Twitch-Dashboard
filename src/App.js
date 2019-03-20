@@ -3,7 +3,6 @@ import "./App.css";
 import { Button } from "react-bootstrap";
 
 import Header from "./MyHeader";
-import SearchBar from "./MySearchBar";
 var APIid = "2x21yf8b7p6a6z6agpbc4cdsf0cy8d";
 var url = "https://api.twitch.tv/helix/streams?"; // comment out?
 // var myURL = "https://api.twitch.tv/helix/streams?";
@@ -55,9 +54,7 @@ class App extends Component {
         });
     };
     test_access_token();
-    // compare newSearch with values in returned array
     console.log("end of new search");
-    // changeURL(newID);
     window.setTimeout(this.changeURL, 1000);
   }
 
@@ -65,17 +62,9 @@ class App extends Component {
     console.log("NewID", newID);
     if (newID.length > 1) {
       url = url + "game_id=" + newID;
-      //myURL = myURL + "game_id=" + newID;
       console.log("url: ", url);
-      var element = document.getElementById("myBox");
-      element.parentNode.removeChild(element);
-      console.log("remove stuff");
-      // this.setState = {
-      //   url: myURL
-      // }
     }
-
-    window.setTimeout(this.fetchData, 1000);
+    this.fetchData();
   }
 
   fetchData() {
@@ -103,8 +92,6 @@ class App extends Component {
         });
     };
     test_access_token();
-    window.setTimeout(this.render, 4000);
-    console.log("trying to render again");
     this.setState({});
   }
 

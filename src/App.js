@@ -142,8 +142,8 @@ class App extends Component {
             </Button>
           </form>
           <div>
-            {this.state.items.map(item => (
-              <div className="stream container">
+            {this.state.items.map((item, i) => (
+              <div key={i} className="stream container">
                 <div className="row">
                   <div className="stream-image col-sm-4">
                     <img src={item.language} alt="" />

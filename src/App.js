@@ -30,6 +30,12 @@ class App extends Component {
   search(e) {
     // name of game has been entered
     e.preventDefault();
+    console.log("searching");
+    console.log(document.getElementById("game-search").value);
+    if (document.getElementById("game-search").value === "Top Streams") {
+      newID = "";
+      window.setTimeout(this.changeURL, 1000);
+    }
     console.log("running search method");
     const newSearch = document.getElementById("game-search").value;
     console.log("newSearch: ", newSearch);
@@ -61,8 +67,10 @@ class App extends Component {
   changeURL() {
     console.log("NewID", newID);
     if (newID.length > 1) {
-      url = url + "game_id=" + newID;
-      console.log("url: ", url);
+      url = "https://api.twitch.tv/helix/streams?game_id=" + newID;
+      // console.log("url: ", url);
+    } else {
+      url = "https://api.twitch.tv/helix/streams?";
     }
     this.fetchData();
   }
@@ -130,13 +138,44 @@ class App extends Component {
           <Header />
           {/* <SearchBar /> */}
           <form id="search-form" onSubmit={this.search}>
-            <input
+            {/* <input
               id="game-search"
               value={this.props.input}
               onChange={this.props.onChange}
               type="text"
               placeholder="Search Game..."
-            />
+            /> */}
+            {/* id is game-search */}
+            <select name="cars" id="game-search">
+              <option value="Top Streams">Top Streams</option>
+              <option value="Fortnite">Fortnite</option>
+              <option value="Sekiro: Shadows Die Twice">
+                Sekiro: Shadows Die Twice
+              </option>
+              <option value="League of Legends">League of Legends</option>
+              <option value="Grand Theft Auto V">Grand Theft Auto V</option>
+              <option value="Just Chatting">Just Chatting</option>
+              <option value="PLAYERUNKNOWN'S BATTLEGROUNDS">
+                PLAYERUNKNOWN'S BATTLEGROUNDS
+              </option>
+              <option value="Apex Legends">Apex Legends</option>
+              <option value="Dota 2">Dota 2</option>
+              <option value="Counter-Strike: Global Offensive">
+                Counter-Strike: Global Offensive
+              </option>
+              <option value="Auto Chess">Auto Chess</option>
+              <option value="World of Warcraft">World of Warcraft</option>
+              <option value="Overwatch">Overwatch</option>
+              <option value="Dead by Daylight">Dead by Daylight</option>
+              <option value="Tom Clancy's The Division 2">
+                Tom Clancy's The Division 2
+              </option>
+              <option value="Tom Clancy's Rainbow Six: Siege">
+                Tom Clancy's Rainbow Six: Siege
+              </option>
+              <option value="Path of Exile">Path of Exile</option>
+              onChange={this.props.onChange}
+            </select>
             <Button className="btn-sm" id="new-submit" onClick={this.search}>
               Go
             </Button>

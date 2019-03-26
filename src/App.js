@@ -1,12 +1,14 @@
 import React, { Component } from "react";
 import "./App.css";
-import { Button } from "react-bootstrap";
+// import { Button } from "react-bootstrap";
 
 import Header from "./MyHeader";
-var APIid = "2x21yf8b7p6a6z6agpbc4cdsf0cy8d";
-var url = "https://api.twitch.tv/helix/streams?"; // comment out?
+import SearchBar from "./MySearchBar";
+
+const APIid = "2x21yf8b7p6a6z6agpbc4cdsf0cy8d";
+let url = "https://api.twitch.tv/helix/streams?"; // comment out?
 // var myURL = "https://api.twitch.tv/helix/streams?";
-var newID = "";
+let newID = "";
 
 // https://api.twitch.tv/helix/streams?
 // https://api.twitch.tv/kraken/streams/
@@ -15,69 +17,51 @@ var newID = "";
 class App extends Component {
   constructor(props) {
     super(props);
-    this.search = this.search.bind(this);
-    this.changeURL = this.changeURL.bind(this);
-    this.fetchData = this.fetchData.bind(this);
-    this.componentDidMount = this.componentDidMount.bind(this);
-    this.render = this.render.bind(this);
     this.state = {
       items: [],
-      loading: false
-      // url: "https://api.twitch.tv/helix/streams?"
+      loading: false,
+      games: [],
+      search_value: "",
+      moreInfo: []
     };
   }
 
-  search(e) {
-    // name of game has been entered
-    e.preventDefault();
-    console.log("searching");
-    console.log(document.getElementById("game-search").value);
+  componentWillMount() {
+    // get top games when app first loads in
+    fetch("https://api.twitch.tv/helix/games/top", {
+      headers: {
+        "Client-Id": APIid
+      }
+    })
+      .then(res => res.json())
+      .then(response => {
+        this.setState({ games: response });
+        console.log("in will mount", this.state);
+      });
+  }
+
+  search = e => {
+    console.log("start of search");
+    const newSearch = document.getElementById("game-search").value;
+    console.log("Searching for", newSearch);
     if (document.getElementById("game-search").value === "Top Streams") {
       newID = "";
-      window.setTimeout(this.changeURL, 1000);
-    }
-    console.log("running search method");
-    const newSearch = document.getElementById("game-search").value;
-    console.log("newSearch: ", newSearch);
-    const test_access_token = () => {
-      fetch("https://api.twitch.tv/helix/games/top", {
-        headers: {
-          "Client-Id": APIid
+    } else {
+      for (let i = 0; i <= 18; i++) {
+        if (newSearch === this.state.games.data[i].name) {
+          newID = this.state.games.data[i].id;
+          console.log(newID);
+          console.log("Found game id ");
         }
-      })
-        .then(res => res.json())
-        .then(response => {
-          console.log("new search response: ", response);
-          console.log("new search index 0", response.data[0]);
-          var i = 0;
-          for (i = 0; i <= 18; i++) {
-            if (newSearch === response.data[i].name) {
-              newID = response.data[i].id;
-              console.log(newID);
-              console.log("Found game id ");
-            }
-          }
-        });
-    };
-    test_access_token();
-    console.log("end of new search");
-    window.setTimeout(this.changeURL, 1000);
-  }
-
-  changeURL() {
-    console.log("NewID", newID);
+      }
+    }
     if (newID.length > 1) {
       url = "https://api.twitch.tv/helix/streams?game_id=" + newID;
       // console.log("url: ", url);
     } else {
       url = "https://api.twitch.tv/helix/streams?";
     }
-    this.fetchData();
-  }
-
-  fetchData() {
-    console.log("fetchData");
-    console.log(url);
+    console.log("new url", url);
     this.setState({ loading: true });
     const test_access_token = () => {
       fetch(url, {
@@ -87,21 +71,57 @@ class App extends Component {
       })
         .then(res => res.json())
         .then(json => {
+          for (let i = 0; i <= 19; i++) {
+            console.log(json.data[i].game_id);
+            for (let j = 0; j <= 18; j++) {
+              if (json.data[i].game_id === this.state.games.data[j].id) {
+                json.data[i].myGame = this.state.games.data[j].name;
+              }
+              if (!json.data[i].hasOwnProperty("myGame")) {
+                json.data[i].myGame = "?";
+              }
+            }
+          }
           this.setState({
             items: json.data,
             loading: false
           });
-          console.log("new data json response: ", json);
-          console.log("new data this.state response: ", this.state);
-          console.log(
-            "new data index zero name: ",
-            this.state.items[0].user_name
-          );
         });
     };
     test_access_token();
     this.setState({});
-  }
+    console.log("end of search");
+    //////////////
+    // PICTURE
+    let entire_data = this.state.items;
+    console.log("entire_data 1", entire_data);
+    for (let i = 0; i <= 18; i++) {
+      let id = this.state.items[i].user_id;
+      // use id to change endopint
+      let endpoint = "https://api.twitch.tv/kraken/streams/" + id;
+      // make/store get request
+      const test_access_token = () => {
+        fetch(endpoint, {
+          headers: {
+            "Client-Id": APIid,
+            Accept: "application/vnd.twitchtv.v5+json"
+          }
+        })
+          .then(res => res.json())
+          .then(json => {
+            entire_data[i].image = json.stream.channel.logo;
+          });
+      };
+      test_access_token();
+      // add data to entire_data to include additional info
+      // setState for items: entire_data
+    }
+    console.log("entire_data 2", entire_data);
+    this.setState({
+      items: entire_data,
+      loading: false
+    });
+  };
 
   componentDidMount() {
     console.log("componentDidMount");
@@ -115,6 +135,17 @@ class App extends Component {
       })
         .then(res => res.json())
         .then(json => {
+          for (let i = 0; i <= 19; i++) {
+            console.log(json.data[i].game_id);
+            for (let j = 0; j <= 18; j++) {
+              if (json.data[i].game_id === this.state.games.data[j].id) {
+                json.data[i].myGame = this.state.games.data[j].name;
+              }
+              if (!json.data[i].hasOwnProperty("myGame")) {
+                json.data[i].myGame = "?";
+              }
+            }
+          }
           this.setState({
             items: json.data,
             loading: false
@@ -127,72 +158,33 @@ class App extends Component {
     test_access_token();
   }
 
+  changeSearchValue = e => {
+    const selectedGame = e.target.value;
+    this.setState({ search_value: selectedGame });
+    this.search();
+  };
+
   render() {
-    console.log("rendering");
-    var { loading } = this.state;
+    console.log("rendering", this.state);
+    let { loading } = this.state;
     if (loading) {
       return <div>Loading...</div>;
     } else {
       return (
         <div className="box" id="myBox">
           <Header />
-          {/* <SearchBar /> */}
-          <form id="search-form" onSubmit={this.search}>
-            {/* <input
-              id="game-search"
-              value={this.props.input}
-              onChange={this.props.onChange}
-              type="text"
-              placeholder="Search Game..."
-            /> */}
-            {/* id is game-search */}
-            <select name="cars" id="game-search">
-              <option value="Top Streams">Top Streams</option>
-              <option value="Fortnite">Fortnite</option>
-              <option value="Sekiro: Shadows Die Twice">
-                Sekiro: Shadows Die Twice
-              </option>
-              <option value="League of Legends">League of Legends</option>
-              <option value="Grand Theft Auto V">Grand Theft Auto V</option>
-              <option value="Just Chatting">Just Chatting</option>
-              <option value="PLAYERUNKNOWN'S BATTLEGROUNDS">
-                PLAYERUNKNOWN'S BATTLEGROUNDS
-              </option>
-              <option value="Apex Legends">Apex Legends</option>
-              <option value="Dota 2">Dota 2</option>
-              <option value="Counter-Strike: Global Offensive">
-                Counter-Strike: Global Offensive
-              </option>
-              <option value="Auto Chess">Auto Chess</option>
-              <option value="World of Warcraft">World of Warcraft</option>
-              <option value="Overwatch">Overwatch</option>
-              <option value="Dead by Daylight">Dead by Daylight</option>
-              <option value="Tom Clancy's The Division 2">
-                Tom Clancy's The Division 2
-              </option>
-              <option value="Tom Clancy's Rainbow Six: Siege">
-                Tom Clancy's Rainbow Six: Siege
-              </option>
-              <option value="Path of Exile">Path of Exile</option>
-              onChange={this.props.onChange}
-            </select>
-            <Button className="btn-sm" id="new-submit" onClick={this.search}>
-              Go
-            </Button>
-          </form>
+          <SearchBar change_search_value={this.changeSearchValue} />
           <div>
             {this.state.items.map((item, i) => (
               <div key={i} className="stream container">
                 <div className="row">
                   <div className="stream-image col-sm-4">
-                    <img src={item.language} alt="" />
-                    {/* Thumbnail image */}
+                    <img src={item.image} alt="" />
                   </div>
                   <div className="stream-info col-sm-7">
                     <h5 className="name">{item.user_name}</h5>
                     <p className="game">
-                      {/* Playing {item.} */}
-                      {/* Not working  */}
+                      Playing <b>{item.myGame}</b>
                     </p>
                     <p className="viewers">Viewers: {item.viewer_count}</p>
                     <p className="description">Description: {item.title}</p>
@@ -208,9 +200,3 @@ class App extends Component {
 }
 
 export default App;
-
-// Thumbnail picture
-// Playing....
-// Search
-// When user enters a search, a function must run to change "url" variable and then refresh the whole app
-// Map entered game with game id?

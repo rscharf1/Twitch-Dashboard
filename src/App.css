@@ -5,10 +5,11 @@ body {
 .box {
   background-color: white;
   margin: auto;
-  width: 50%;
+  width: 60%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-width: 500px;
 }
 
 .stream {
@@ -60,4 +61,6 @@ body {
   /* line-height: 110%; */
   font-size: 2.5vw;
   font-size: 15px;
+  max-height: 50px;
+  overflow: scroll;
 }
